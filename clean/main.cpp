@@ -102,7 +102,7 @@ pair<vector<vector<double> >,vector<string> > train(string folder)
 			vector<vector<double> > features=imageToFeaturesQuick(imageList[j]);
 			//cout<<imageList[j] <<" ";
 			result.first.insert(result.first.end(),features.begin(),features.end());
-			vector<string> labels(imageList.size(),subFolderList[i]);
+			vector<string> labels(features.size(),subFolderList[i]);
 			result.second.insert(result.second.end(),labels.begin(),labels.end());
 		}
 
@@ -126,12 +126,13 @@ double dis(vector<double>& a,vector<double>& b)
 
 vector<string> test(string folder,pair<vector<vector<double> >,vector<string> >& codebook)
 {
+	cout<<"codebook size"<<codebook.first.size()<<endl;
 	assert(codebook.first.size()==codebook.second.size());
 	assert(codebook.first.size()>_NUM_OF_SIMILAR_CODES);
 
-	vector<int> index(codebook.first.size());
-	for(int i=0;i<codebook.first.size();++i)
-		index[i]=i;
+	
+	//for(int i=0;i<codebook.first.size();++i)
+		
 
 	vector<string> result;
 
@@ -140,7 +141,7 @@ vector<string> test(string folder,pair<vector<vector<double> >,vector<string> >&
 	vector<string> imageList=fileIOclass::InVectorString("allimg.lst");
 
 	result.resize(imageList.size(),"");
-
+	#pragma omp parallel for
 	for(int i=0;i<imageList.size();++i)
 	{
 		vector<vector<double> > features=imageToFeaturesQuick(imageList[i]);
@@ -149,17 +150,20 @@ vector<string> test(string folder,pair<vector<vector<double> >,vector<string> >&
 		unordered_map<string,int> stastics;
 		for(int j=0;j<features.size();++j)
 		{
+			vector<int> index(codebook.first.size());
 			vector<double> distances(codebook.first.size(),0.0);
 			for(int k=0;k<codebook.first.size();++k)
 			{
 				distances[k] = dis(features[j],codebook.first[k]);
+				index[k]=k;
 			}
-			vector<int> temindex=index;
-			FromSmall(distances,temindex.size(),temindex);
+			//vector<int> temindex=index;
+			FromSmall(distances,index.size(),index);
 
 			for(int k=0;k<_NUM_OF_SIMILAR_CODES;++k)
 			{
-				string label=codebook.second[temindex[k]];
+				//cout<<index[k]<<endl;
+				string label=codebook.second[index[k]];
 				if(stastics.count(label))
 					++stastics[label];
 				else
@@ -194,8 +198,8 @@ int mainsift(int argc,char* argv[])
 
 int main_()
 {
-	string trainingFolder="F:\\work\\Ex01\\training\\";
-	string testingFolder="F:\\work\\Ex01\\input\\";
+	string trainingFolder="D:\\ZPWang\\Ex01\\training\\";
+	string testingFolder="D:\\ZPWang\\Ex01\\input\\";
 	
 	cout<<"training...."<<endl;
 	pair<vector<vector<double>>,vector<string>> codebook=train(trainingFolder);
@@ -217,8 +221,8 @@ int main_()
 
 int main()
 {
-	string trainingFolder="F:\\work\\Ex01\\training\\";
-	string testingFolder="F:\\work\\Ex01\\input\\";
+	string trainingFolder="D:\\ZPWang\\Ex01\\training\\";
+	string testingFolder="D:\\ZPWang\\Ex01\\input\\";
 	
 	cout<<"training...."<<endl;
 	pair<vector<vector<double>>,vector<string>> codebook;//=train(trainingFolder);
