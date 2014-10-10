@@ -124,7 +124,7 @@ double dis(vector<double>& a,vector<double>& b)
 	return sum;
 }
 
-vector<string> test(string folder,pair<vector<vector<double> >,vector<string> >& codebook)
+vector< pair<vector<string>,vector<int> > > test(string folder,pair<vector<vector<double> >,vector<string> >& codebook)
 {
 	cout<<"codebook size"<<codebook.first.size()<<endl;
 	assert(codebook.first.size()==codebook.second.size());
@@ -134,13 +134,13 @@ vector<string> test(string folder,pair<vector<vector<double> >,vector<string> >&
 	//for(int i=0;i<codebook.first.size();++i)
 		
 
-	vector<string> result;
+
 
 	_chdir(folder.c_str());
 
 	vector<string> imageList=fileIOclass::InVectorString("allimg.lst");
-
-	result.resize(imageList.size(),"");
+	vector<pair<vector<string>,vector<int>> > result(imageList.size());
+//	result.resize(imageList.size(),"");
 	#pragma omp parallel for
 	for(int i=0;i<imageList.size();++i)
 	{
@@ -171,15 +171,31 @@ vector<string> test(string folder,pair<vector<vector<double> >,vector<string> >&
 			}
 
 		}
-		int maxnum=0;
+
+		pair<vector<string>,vector<int> > orders;
+		orders.first.resize(stastics.size(),"");
+		orders.second.resize(stastics.size(),0);
+
+		vector<string> labelorder(stastics.size());
+		vector<int> numberorder(stastics.size());
+		vector<int> subindex(stastics.size());
+		int j=0;
 		for(unordered_map<string,int>::iterator it=stastics.begin();it!=stastics.end();++it)
 		{
-			if(it->second>maxnum)
-			{
-				maxnum=it->second;
-				result[i]=it->first;
-			}
+			labelorder[j]=it->first;
+			numberorder[j]=it->second;
+			subindex[j]=j;
+			++j;
 		}
+		vector<int> temnumberorder=numberorder;
+		FromSmall(temnumberorder,subindex.size(),subindex);
+		for(int k=0;k<subindex.size();++k)
+		{
+			int _ind=subindex.size()-1-k;
+			orders.first[k]=labelorder[subindex[_ind]];
+			orders.second[k]=numberorder[subindex[_ind]];
+		}
+		result[i]=orders;
 	}
 	
 	return result;
@@ -209,9 +225,9 @@ int main_()
 	fileIOclass::OutVectorString("labels.txt",codebook.second);
 	cout<<"finished training...\ntesting...\n"<<endl;
 
-	vector<string> labels=test(testingFolder,codebook);
+	vector<pair<vector<string>,vector<int> > > labels=test(testingFolder,codebook);
 	_chdir(testingFolder.c_str());
-	fileIOclass::OutVectorString("lables.txt",labels);
+	//fileIOclass::OutVectorString("lables.txt",labels);
 
 
 	
@@ -236,9 +252,9 @@ int main()
 
 	cout<<"finished training...\ntesting...\n"<<endl;
 
-	vector<string> labels=test(testingFolder,codebook);
+	vector<pair<vector<string>,vector<int> > > labels=test(testingFolder,codebook);
 	_chdir(testingFolder.c_str());
-	fileIOclass::OutVectorString("lables.txt",labels);
+	//fileIOclass::OutVectorString("lables.txt",labels);
 
 
 	
