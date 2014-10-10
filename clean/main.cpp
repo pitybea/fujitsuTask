@@ -146,7 +146,7 @@ vector< pair<vector<string>,vector<int> > > test(string folder,pair<vector<vecto
 	{
 		vector<vector<double> > features=imageToFeaturesQuick(imageList[i]);
 		//if (i%100==0)
-			cout<<imageList[i]<<" ";
+			
 		unordered_map<string,int> stastics;
 		for(int j=0;j<features.size();++j)
 		{
@@ -206,6 +206,7 @@ vector< pair<vector<string>,vector<int> > > test(string folder,pair<vector<vecto
 		}
 
 		fclose(fp);
+		cout<<"finished number "<<i<<endl;
 	}
 	
 	return result;
