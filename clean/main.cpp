@@ -196,6 +196,16 @@ vector< pair<vector<string>,vector<int> > > test(string folder,pair<vector<vecto
 			orders.second[k]=numberorder[subindex[_ind]];
 		}
 		result[i]=orders;
+
+		string fileName=imageList[i]+".label";
+		FILE* fp=fopen(fileName.c_str(),"w");
+		fprintf(fp,"%d\n",orders.first.size());
+		for(int k=0;k<orders.first.size();++k)
+		{
+			fprintf(fp,"%s %d\n",orders.first[k].c_str(),orders.second[k]);
+		}
+
+		fclose(fp);
 	}
 	
 	return result;
