@@ -1,18 +1,11 @@
 #include <opencv2/core/core.hpp>
 #include <opencv2/features2d/features2d.hpp>
 #include <opencv2/highgui/highgui.hpp>
-#include <iostream>
-#include <fstream>
+
 
 #include "..\FileIO\FileInOut.h"
 
-#include <vector>
-#include <string>
-#include <windows.h>
-#include <direct.h>
-#include <string>
-#include <unordered_map>
-#include <algorithm>
+#include "utinity.h"
 using namespace std;
 using namespace cv;
 

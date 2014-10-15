@@ -150,6 +150,13 @@
   <ItemGroup>
     <ClCompile Include="..\FileIO\FileIO.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="utinity.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="utinity.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="settings.inl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
