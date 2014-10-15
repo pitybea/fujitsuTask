@@ -1,55 +1,18 @@
-#include <opencv2/core/core.hpp>
-#include <opencv2/features2d/features2d.hpp>
-#include <opencv2/highgui/highgui.hpp>
+
 
 
 #include "..\FileIO\FileInOut.h"
 
 #include "utinity.h"
 using namespace std;
-using namespace cv;
+
 
 
 #define _NUM_OF_SIMILAR_CODES 30
 
 
 
-vector<vector<double> > imageToFeatures(string s)
-{
-	
-	Mat iptimg=imread(s);
 
-	SiftFeatureDetector detector;
-	vector<KeyPoint> temkpts;
-	detector.detect(iptimg,temkpts);
-	SiftDescriptorExtractor extractor;
-	Mat descriptor;
-	extractor.compute(iptimg,temkpts,descriptor);
-	
-	
-	vector<vector<double> > features;
-	features.resize(descriptor.rows,vector<double>(128,0.0));
-	for (int i=0;i<descriptor.rows;i++)
-	{
-
-		
-
-		double temsum(0.000001);
-		for (int j=0;j<128;j++)
-		{
-			temsum+=descriptor.at<float>(i,j);
-				
-		}
-		for (int j=0;j<128;j++)
-		{
-			
-			features[i][j]=descriptor.at<float>(i,j)/temsum;
-		}
-
-
-	}
-	return features;
-}
 
 vector<vector<double> > imageToFeaturesQuick(string s)
 {
@@ -190,15 +153,7 @@ vector< pair<vector<string>,vector<int> > > test(string folder,pair<vector<vecto
 }
 
 
-int mainsift(int argc,char* argv[])
-{
-	string s=argv[1];
 
-	vector<vector<double> > features=imageToFeatures(s);
-
-	fileIOclass::OutVectorSDouble(s+".sift",features);
-	return 0;
-}
 
 int main_()
 {
