@@ -227,7 +227,7 @@ public:
 };
 
 
-int main()
+int main_()
 {
 	_chdir("D:\\DATA\\Fujitsu\\images\\");
 	string trainFolder="D:\\DATA\\Fujitsu\\images\\training\\";
@@ -249,7 +249,33 @@ int main()
 
 }
 
-int main_()
+
+int main(int argc,char* argv[])
+{
+
+	assert(argv>1);
+	string task=argv[1];
+	_chdir("D:\\DATA\\Fujitsu\\images\\");
+	string trainFolder="D:\\DATA\\Fujitsu\\images\\training\\";
+	
+	string testFolder="D:\\DATA\\Fujitsu\\images\\test\\";
+	auto tasks=fileIOclass::InVectorString("task.lst");
+
+	//for(int i=0;i<tasks.size();++i)
+	//{
+		cout<<task<<endl;
+		string trainimages=task+"name.txt";
+		string trainlabels=task+"label.txt";
+		string testimages=task+"test.txt";
+		trainTestTask oneTask(task,trainFolder,testFolder,trainimages,trainlabels,testimages);
+		oneTask.train();
+		oneTask.doKmeans();
+	//}
+
+
+}
+
+int main1_()
 {
 	string trainingFolder="D:\\ZPWang\\Ex01\\training\\";
 	string testingFolder="D:\\ZPWang\\Ex01\\input\\";
