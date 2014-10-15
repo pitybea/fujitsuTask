@@ -157,7 +157,7 @@ pair<vector<vector<double> >,vector<int> > parallelKMeans(const vector<vector<do
 
 
 
-		if(sameClusters(records,temLabels))
+		if(iterNumber>0 && sameClusters(records,temLabels))
 			break;
 	}
 

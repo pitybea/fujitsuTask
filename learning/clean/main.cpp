@@ -161,17 +161,22 @@ int main()
 	string testingFolder="D:\\ZPWang\\Ex01\\input\\";
 	
 	cout<<"training...."<<endl;
-	pair<vector<vector<double>>,vector<string>> codebook=train(trainingFolder);
+	pair<vector<vector<double>>,vector<string>> codebook;//=train(trainingFolder);
 	_chdir(trainingFolder.c_str());
 
-	fileIOclass::OutVectorSDouble("features.txt",codebook.first);
-	fileIOclass::OutVectorString("labels.txt",codebook.second);
-	cout<<"finished loading...\ntesting...\n"<<endl;
+	//fileIOclass::OutVectorSDouble("features.txt",codebook.first);
+	//fileIOclass::OutVectorString("labels.txt",codebook.second);
+
+	codebook.first=fileIOclass::InVectorSDouble("features.txt");
+	//codebook.second=fileIOclass::InVectorString("labels.txt");
+
+	cout<<"finished training...\ntesting...\n"<<endl;
+	//cout<<"finished loading...\ntesting...\n"<<endl;
 
 
 	auto cluster=parallelKMeans(codebook.first);
 	fileIOclass::OutVectorSDouble("centers.txt",cluster.first);
-	fileIOclass::OutVectorInt("lables.txt",cluster.second);
+	fileIOclass::OutVectorInt("clusterlables.txt",cluster.second);
 
 
 	//vector<pair<vector<string>,vector<int> > > labels=test(testingFolder,codebook);
