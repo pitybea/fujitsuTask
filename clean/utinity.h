@@ -8,9 +8,45 @@
 #include <algorithm>
 #include <iostream>
 #include <fstream>
+#include <assert.h>
 using namespace std;
 
 #pragma once 
 
 
-pair<vector<vector<double> >,vector<int> > parallelKMeans(const vector<vector<double> >& dataset,int kCenter=-1);
+pair<vector<vector<double> >,vector<int> > parallelKMeans(const vector<vector<double> >& dataset,int kCenter=-1,int maxIterationNumber=1000);
+template<class T>
+static void FromSmall(vector<T>& p,int n,vector<int>& index)
+{
+	int k,j,i;
+	T t;
+	int ii;
+	k=n/2;
+	while(k>0)
+	{
+		for(j=k;j<=n-1;j++)
+		{
+			t=p[j];  ii=index[j];  i=j-k;
+			while((i>=0)&&(p[i]>t))
+			{
+				p[i+k]=p[i];  index[i+k]=index[i];  i=i-k;
+			}
+			p[i+k]=t;  index[i+k]=ii;
+		}
+		k=k/2;
+	}
+};
+
+
+double dis(const vector<double>& a,const vector<double>& b)
+{
+	assert(a.size()==b.size());
+
+	double sum=0;
+	for(int i=0;i<a.size();++i)
+	{
+		double tem=a[i]-b[i];
+		sum+=tem*tem;
+	}
+	return sum;
+}

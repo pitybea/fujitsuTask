@@ -12,27 +12,7 @@ using namespace cv;
 
 #define _NUM_OF_SIMILAR_CODES 30
 
-template<class T>
-static void FromSmall(vector<T>& p,int n,vector<int>& index)
-{
-	int k,j,i;
-	T t;
-	int ii;
-	k=n/2;
-	while(k>0)
-	{
-		for(j=k;j<=n-1;j++)
-		{
-			t=p[j];  ii=index[j];  i=j-k;
-			while((i>=0)&&(p[i]>t))
-			{
-				p[i+k]=p[i];  index[i+k]=index[i];  i=i-k;
-			}
-			p[i+k]=t;  index[i+k]=ii;
-		}
-		k=k/2;
-	}
-};
+
 
 vector<vector<double> > imageToFeatures(string s)
 {
@@ -115,18 +95,6 @@ pair<vector<vector<double> >,vector<string> > train(string folder)
 	return result;
 }
 
-double dis(vector<double>& a,vector<double>& b)
-{
-	assert(a.size()==b.size());
-
-	double sum=0;
-	for(int i=0;i<a.size();++i)
-	{
-		double tem=a[i]-b[i];
-		sum+=tem*tem;
-	}
-	return sum;
-}
 
 vector< pair<vector<string>,vector<int> > > test(string folder,pair<vector<vector<double> >,vector<string> >& codebook)
 {
