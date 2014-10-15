@@ -15,8 +15,10 @@ using namespace std;
 
 
 pair<vector<vector<double> >,vector<int> > parallelKMeans(const vector<vector<double> >& dataset,int kCenter=-1,int maxIterationNumber=1000);
+
+
 template<class T>
-static void FromSmall(vector<T>& p,int n,vector<int>& index)
+void FromSmall(vector<T>& p,int n,vector<int>& index)
 {
 	int k,j,i;
 	T t;
@@ -38,15 +40,4 @@ static void FromSmall(vector<T>& p,int n,vector<int>& index)
 };
 
 
-double dis(const vector<double>& a,const vector<double>& b)
-{
-	assert(a.size()==b.size());
-
-	double sum=0;
-	for(int i=0;i<a.size();++i)
-	{
-		double tem=a[i]-b[i];
-		sum+=tem*tem;
-	}
-	return sum;
-}
+double dis(const vector<double>& a,const vector<double>& b);
