@@ -111,6 +111,7 @@ pair<vector<vector<double> >,vector<int> > parallelKMeans(const vector<vector<do
 	
 	for(int iterNumber=0;iterNumber<maxIterationNumber;++iterNumber)
 	{
+		cout<<iterNumber<<"th iteration\n "<<endl;
 		vector<int> temLabels=labels;
 		unordered_map<int,vector<int> > records;
 		#pragma omp parallel for

@@ -155,7 +155,7 @@ vector< pair<vector<string>,vector<int> > > test(string folder,pair<vector<vecto
 
 
 
-int main_()
+int main()
 {
 	string trainingFolder="D:\\ZPWang\\Ex01\\training\\";
 	string testingFolder="D:\\ZPWang\\Ex01\\input\\";
@@ -166,10 +166,16 @@ int main_()
 
 	fileIOclass::OutVectorSDouble("features.txt",codebook.first);
 	fileIOclass::OutVectorString("labels.txt",codebook.second);
-	cout<<"finished training...\ntesting...\n"<<endl;
+	cout<<"finished loading...\ntesting...\n"<<endl;
 
-	vector<pair<vector<string>,vector<int> > > labels=test(testingFolder,codebook);
-	_chdir(testingFolder.c_str());
+
+	auto cluster=parallelKMeans(codebook.first);
+	fileIOclass::OutVectorSDouble("centers.txt",cluster.first);
+	fileIOclass::OutVectorInt("lables.txt",cluster.second);
+
+
+	//vector<pair<vector<string>,vector<int> > > labels=test(testingFolder,codebook);
+	//_chdir(testingFolder.c_str());
 	//fileIOclass::OutVectorString("lables.txt",labels);
 
 
@@ -178,31 +184,5 @@ int main_()
 
 }
 
-int main()
-{
-	string trainingFolder="D:\\ZPWang\\Ex01\\training\\";
-	string testingFolder="D:\\ZPWang\\Ex01\\input\\";
-	
-	cout<<"training...."<<endl;
-	pair<vector<vector<double>>,vector<string>> codebook;//=train(trainingFolder);
-	_chdir(trainingFolder.c_str());
-
-	//fileIOclass::OutVectorSDouble("features.txt",codebook.first);
-	//fileIOclass::OutVectorString("labels.txt",codebook.second);
-
-	codebook.first=fileIOclass::InVectorSDouble("features.txt");
-	codebook.second=fileIOclass::InVectorString("labels.txt");
-
-	cout<<"finished training...\ntesting...\n"<<endl;
-
-	vector<pair<vector<string>,vector<int> > > labels=test(testingFolder,codebook);
-	_chdir(testingFolder.c_str());
-	//fileIOclass::OutVectorString("lables.txt",labels);
-
-
-	
-    return 0;
-
-}
 
 
