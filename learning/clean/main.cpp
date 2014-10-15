@@ -195,6 +195,8 @@ public:
 
 			for(int i=0;i<imgNames.size();i++)
 			{
+				if(i%3==0) cout<<i<<endl;
+
 				auto tfeatures=imageToFeaturesQuick(imgNames[i]+".jpg.sift");
 				vector<string> tlabels=vector<string>(tfeatures.size(),labelNames[i]);
 				features.insert(features.end(),tfeatures.begin(),tfeatures.end());
@@ -202,6 +204,7 @@ public:
 			}
 			fileIOclass::OutVectorSDouble(feaFileName,features);
 			fileIOclass::OutVectorString(labelFieName,labels);
+			cout<<"codebook generated<<"<<endl;
 		}
 	}
 
