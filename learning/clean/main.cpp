@@ -14,9 +14,9 @@ using namespace std;
 
 
 
-vector<vector<double> > imageToFeaturesQuick(string s)
+vector<vector<double> > imageToFeaturesQuick(const string& s)
 {
-	return fileIOclass::InVectorSDouble(s+".sift");
+	return fileIOclass::InVectorSDouble(s);
 }
 
 
@@ -30,7 +30,7 @@ inline bool fileExists (const string& name) {
 }
 
 
-pair<vector<vector<double> >,vector<string> > train(string folder)
+pair<vector<vector<double> >,vector<string> > train(const string& folder)
 {
 	pair<vector<vector<double> >,vector<string> > result;
 
@@ -154,8 +154,99 @@ vector< pair<vector<string>,vector<int> > > test(string folder,pair<vector<vecto
 
 
 
+class trainTestTask
+{
+public:
+	string taskName;
+	string trainFolder;
+	string testFolder;
+	string trainImages;
+	string trainLabels;
+	string testImages;
+
+
+	string feaFileName;//=taskName+"features.txt";
+	string labelFieName;//=taskName+"classlabel.txt";
+	string centerFileName;//=taskName+"featureCenters.txt";
+	string clusterLabelFileName;//=taskName+"clusterlabels";
+
+	vector<vector<double> > features;
+	vector<string> labels;
+
+	trainTestTask(string _taskName,string _trainFolder,string _testFolder,string _trainImages,string _trainLabels,string _testImages)
+		:taskName(_taskName),trainFolder(_trainFolder),testFolder(_testFolder),trainImages(_trainImages),trainLabels(_trainLabels),testImages(_testImages)
+	{
+		feaFileName=taskName+"features.txt";
+		labelFieName=taskName+"classlabel.txt";
+		centerFileName=taskName+"featureCenters.txt";
+		clusterLabelFileName=taskName+"clusterlabels";
+	}
+
+	void train()
+	{
+		
+		if(!fileExists(feaFileName))
+		{
+			features.clear();
+			labels.clear();
+			_chdir(trainFolder.c_str());
+			auto imgNames=fileIOclass::InVectorString(trainImages);
+			auto labelNames=fileIOclass::InVectorString(trainLabels);
+
+			for(int i=0;i<imgNames.size();i++)
+			{
+				auto tfeatures=imageToFeaturesQuick(imgNames[i]+".jpg.sift");
+				vector<string> tlabels=vector<string>(tfeatures.size(),labelNames[i]);
+				features.insert(features.end(),tfeatures.begin(),tfeatures.end());
+				labels.insert(labels.end(),tlabels.begin(),tlabels.end());
+			}
+			fileIOclass::OutVectorSDouble(feaFileName,features);
+			fileIOclass::OutVectorString(labelFieName,labels);
+		}
+	}
+
+	void doKmeans()
+	{
+		
+		if(!fileExists(centerFileName))
+		{
+			if(features.size()==0)
+			{
+				features=fileIOclass::InVectorSDouble(feaFileName);
+				labels=fileIOclass::InVectorString(labelFieName);
+			}
+			auto clusters=parallelKMeans(features);
+			fileIOclass::OutVectorSDouble(centerFileName,clusters.first);
+			fileIOclass::OutVectorInt(clusterLabelFileName,clusters.second);
+		}
+	}
+
+};
+
 
 int main()
+{
+	_chdir("D:\\DATA\\Fujitsu\\images\\");
+	string trainFolder="D:\\DATA\\Fujitsu\\images\\training\\";
+	
+	string testFolder="D:\\DATA\\Fujitsu\\images\\test\\";
+	auto tasks=fileIOclass::InVectorString("task.lst");
+
+	for(int i=0;i<tasks.size();++i)
+	{
+		cout<<"Task number " <<i<<endl;
+		string trainimages=tasks[i]+"name.txt";
+		string trainlabels=tasks[i]+"label.txt";
+		string testimages=tasks[i]+"test.txt";
+		trainTestTask oneTask(tasks[i],trainFolder,testFolder,trainimages,trainlabels,testimages);
+		oneTask.train();
+		oneTask.doKmeans();
+	}
+
+
+}
+
+int main_()
 {
 	string trainingFolder="D:\\ZPWang\\Ex01\\training\\";
 	string testingFolder="D:\\ZPWang\\Ex01\\input\\";
