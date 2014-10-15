@@ -7,6 +7,21 @@
 
 using namespace FujitsuTask;
 
+
+
+double dis(const vector<double>& a,const vector<double>& b)
+{
+	assert(a.size()==b.size());
+
+	double sum=0;
+	for(int i=0;i<a.size();++i)
+	{
+		double tem=a[i]-b[i];
+		sum+=tem*tem;
+	}
+	return sum;
+}
+
 vector<int> shuffledOrder(int n)
 {
 	vector<int> result(n);
@@ -120,7 +135,7 @@ pair<vector<vector<double> >,vector<int> > parallelKMeans(const vector<vector<do
 
 			centerIndex.push_back(oneCluster);
 
-			if(records.size()<centers.size());
+			if(records.size()<centers.size())
 			for(int j=0;j<oneCluster.size();++j)
 			{
 				labels[oneCluster[j]]=index;
