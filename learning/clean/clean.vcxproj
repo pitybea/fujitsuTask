@@ -158,6 +158,7 @@
     <ClCompile Include="utinity.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="trainTest.h" />
     <ClInclude Include="utinity.h" />
   </ItemGroup>
   <ItemGroup>

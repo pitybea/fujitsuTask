@@ -40,4 +40,14 @@ void FromSmall(vector<T>& p,int n,vector<int>& index)
 };
 
 
+
+inline bool fileExists (const string& name) {
+    if (FILE *file = fopen(name.c_str(), "r")) {
+        fclose(file);
+        return true;
+    } else {
+        return false;
+    }   
+}
+
 double dis(const vector<double>& a,const vector<double>& b);
