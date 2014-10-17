@@ -126,3 +126,87 @@ int test()
 
 // Helper function for using CUDA to add vectors in parallel.
 
+__global__ void adda(int count,int* a,int *b,int* c)
+{
+	
+	int i= blockDim.x* blockIdx.x +threadIdx.x;
+	if(i<count)
+		c[i]=a[i]+b[i];
+}
+
+void launch(int* a,int* b,int* c,int testsize)
+{
+	int threadsize=256;
+	int blocksize=256;
+
+	adda<<<blocksize,threadsize>>>(testsize,a,b,c);
+
+	cudaDeviceSynchronize();
+}
+
+int amain()
+{
+	int testsize=100000;
+	int* a;
+	int* b;
+
+	//a=new int[testsize];
+	//b=new int[testsize];
+
+	cudaMallocManaged(&a,sizeof(int)*testsize);
+	cudaMallocManaged(&b,sizeof(int)*testsize);
+
+	for (int i = 0; i < testsize; i++)
+	{
+		a[i]=i;
+		b[i]=testsize-i;
+	}
+	int* c;
+
+	c=new int[testsize];
+	cudaMallocManaged((void**)&c,sizeof(int)*testsize);
+
+
+	for (int i = 0; i < testsize; i++)
+	{
+		if(testsize%1000==0)
+			printf("%d ",c[i]);
+			
+	}
+
+	cudaFree(a);
+	cudaFree(b);
+	cudaFree(c);
+
+	cudaDeviceReset;
+    return 0;
+}
+
+__global__ void printValue( int *value) {
+	++value[blockIdx.x];
+}
+ 
+void hostFunction(int *value){
+ 
+	value[0]=1;
+	value[1]=2;
+	printValue<<< 2, 1 >>>(value);
+	cudaDeviceSynchronize();
+	cudaFree(value);
+}
+ 
+int main() {
+	int *value;
+	cudaMallocManaged(&value, 2 * sizeof(int));
+
+	cudaError_t cudaStatus = cudaGetLastError();
+    if (cudaStatus != cudaSuccess) {
+
+       // goto Error;
+    }
+	hostFunction(value);
+	return 0;
+}
+
+
+

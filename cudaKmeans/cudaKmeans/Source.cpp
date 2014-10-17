@@ -8,7 +8,7 @@
 #include <direct.h>
 #include <Windows.h>
 
-int main()
+int main1()
 {
 	
 	int    *membership;    /* [numObjs] */
