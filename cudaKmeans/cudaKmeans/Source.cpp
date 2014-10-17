@@ -20,11 +20,12 @@ int main()
 	int     numClusters, numCoords, numObjs;
 
 	threshold        = 0.00001;
-    numClusters      = 20;
    
-	_chdir("F:\\fujitsu");
-	auto data=fileIOclass::InVectorSDouble("test.f");
+   
+	_chdir("D:\\DATA\\Fujitsu\\images\\training");
+	auto data=fileIOclass::InVectorSDouble("task08_features.txt");
 
+	 numClusters      = data.size()/1000;
 	numObjs=data.size();
 	numCoords=data[0].size();
 
@@ -52,7 +53,7 @@ int main()
 	for(int i=0;i<numObjs;++i)
 		lbs[i]=membership[i];
 
-	fileIOclass::OutVectorInt("lab.txt",lbs);
+	fileIOclass::OutVectorInt("task08_clusterlabels",lbs);
 
 	delete[] membership;
 
@@ -70,7 +71,7 @@ int main()
 	free(clusters[0]);
 
     free( clusters);
-	fileIOclass::OutVectorSDouble("centers.txt",centers);
+	fileIOclass::OutVectorSDouble("task08_featureCenters.txt",centers);
 
 	return 0;
 }

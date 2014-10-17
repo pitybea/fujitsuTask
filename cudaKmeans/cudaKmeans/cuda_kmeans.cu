@@ -42,6 +42,8 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include "cuda_runtime.h"
+#include "device_launch_parameters.h"
 
 #include "kmeans.h"
 
@@ -214,6 +216,7 @@ float** cuda_kmeans(float **objects,      /* in: [numObjs][numCoords] */
                    int    *membership,   /* out: [numObjs] */
                    int    *loop_iterations)
 {
+	 cudaSetDevice(0);
     int      i, j, index, loop=0;
     int     *newClusterSize; /* [numClusters]: no. objects assigned in each
                                 new cluster */
@@ -230,7 +233,11 @@ float** cuda_kmeans(float **objects,      /* in: [numObjs][numCoords] */
 
     //  Copy objects given in [numObjs][numCoords] layout to new
     //  [numCoords][numObjs] layout
+
+	printf("before memory allocation\n");
     malloc2D(dimObjects, numCoords, numObjs, float);
+	
+	printf("after memory allocation\n");
     for (i = 0; i < numCoords; i++) {
         for (j = 0; j < numObjs; j++) {
             dimObjects[i][j] = objects[j][i];
@@ -344,7 +351,8 @@ float** cuda_kmeans(float **objects,      /* in: [numObjs][numCoords] */
         }
 
         delta /= numObjs;
-    } while (delta > threshold && loop++ < 500);
+		printf("%d\n",loop);
+    } while (delta > threshold && loop++ < 2000);
 
     *loop_iterations = loop + 1;
 

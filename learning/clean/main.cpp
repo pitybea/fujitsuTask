@@ -161,7 +161,7 @@ int main()
 		string testimages=tasks[i]+"test.txt";
 		trainTestTask oneTask(tasks[i],trainFolder,testFolder,trainimages,trainlabels,testimages);
 		oneTask.train();
-		oneTask.doKmeans();
+		//oneTask.doKmeans();
 	}
 
 
@@ -187,7 +187,7 @@ int kmain(int argc,char* argv[])
 		string testimages=task+"test.txt";
 		trainTestTask oneTask(task,trainFolder,testFolder,trainimages,trainlabels,testimages);
 		oneTask.train();
-		oneTask.doKmeans();
+		//oneTask.doKmeans();
 	//}
 
 	return 0;

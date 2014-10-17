@@ -37,7 +37,7 @@ public:
 	void train()
 	{
 		_chdir(trainFolder.c_str());
-		if(!fileExists(feaFileName))
+		if(!( fileExists(feaFileName)&& fileExists(labelFieName)) )
 		{
 			features.clear();
 			labels.clear();
