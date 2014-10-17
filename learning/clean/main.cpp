@@ -168,7 +168,7 @@ int main2()
 }
 
 
-int kmain(int argc,char* argv[])
+int main(int argc,char* argv[])
 {
 
 	assert(argc>1);
@@ -193,7 +193,7 @@ int kmain(int argc,char* argv[])
 	return 0;
 }
 
-int main1_()
+int mainb()
 {
 	string trainingFolder="D:\\ZPWang\\Ex01\\training\\";
 	string testingFolder="D:\\ZPWang\\Ex01\\input\\";
@@ -226,7 +226,7 @@ int main1_()
     return 0;
 
 }
-int main()
+int maintestKm()
 {
 	_chdir("F:\\fujitsu");
 	auto data=fileIOclass::InVectorSDouble("test.f");
