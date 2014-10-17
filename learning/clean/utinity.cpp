@@ -41,6 +41,26 @@ vector<int> shuffledOrder(int n)
 	return result;
 }
 
+vector<int> shuffledOrder(int n,int m)
+{
+	assert(n>=m);
+	vector<int> result(m);
+	vector<int> index(n);
+	for(int i=0;i<n;++i)
+	{
+		index[i]=i;
+	}
+
+	for(int i=0;i<m;++i)
+	{
+		int tem=rand()%(n-i);
+		result[i]=index[tem];
+		index[tem]=index[n-i-1];
+
+	}
+	return result;
+}
+
 bool sameClusters(unordered_map<int, vector<int> >& a,const vector<int>& b)
 {
 	for(unordered_map<int, vector<int> >::iterator iter=a.begin();iter!=a.end();++iter)
@@ -106,7 +126,8 @@ pair<vector<vector<double> >,vector<int> > parallelKMeans(const vector<vector<do
 
 	for(int i=0;i<centers.size();++i)
 	{
-		centers[i]=dataset[initialCenterIndex[i]];
+		//centers[i]=dataset[initialCenterIndex[i]];
+		centers[i]=dataset[i];
 	}
 	
 	for(int iterNumber=0;iterNumber<maxIterationNumber;++iterNumber)
@@ -165,6 +186,172 @@ pair<vector<vector<double> >,vector<int> > parallelKMeans(const vector<vector<do
 	pair<vector<vector<double> >,vector<int> > result;
 	
 	result.first=centers;
+	result.second=labels;
+
+	return result;
+
+}
+
+
+int indexOfMostSimilar(const vector<double>& a,const vector<vector<double>>& dataset,const vector<bool>& dataFlag )
+{
+	assert(dataset.size()==dataFlag.size());
+	int firstindex=0;
+	while(firstindex<dataFlag.size()&& ( !dataFlag[firstindex] ))
+		++firstindex;
+	assert(firstindex<dataFlag.size());
+
+	int result=firstindex;
+	double minDis=dis(a,dataset[firstindex]);
+
+	for(int i=firstindex;i<dataset.size();++i)
+	{
+		if(dataFlag[i])
+		{
+			double tdis=dis(a,dataset[i]);
+			if(tdis<minDis)
+			{
+				minDis=tdis;
+				result=i;
+			}
+		}
+	}
+
+	return result;
+}
+
+
+pair<vector<vector<double> >,vector<int> > parallelKMeans2(const vector<vector<double> >& dataset,int kCenter,int maxIterationNumber)
+{
+	if(kCenter==-1)
+		kCenter=dataset.size()/1000;
+
+	if(kCenter<1) kCenter=1;
+
+
+
+	assert(dataset.size()>=kCenter);
+
+	int dimension=dataset[0].size();
+
+	vector<vector<double> > centers(kCenter,vector<double>(dataset[0].size(),0.0));
+	vector<bool> goodCenterFlag(kCenter,true);
+
+	vector<int> labels(dataset.size(),0);
+
+	vector<vector<int> > paraClusterCount(parallelNumber,vector<int>(kCenter,0));
+	vector<int> clusterCount(kCenter,0);
+
+	vector<vector<vector<double> > > paraCenters(parallelNumber,vector<vector<double> >(kCenter,vector<double>(dataset[0].size(),0.0)));
+
+//	vector<bool> centerChangeFlag(dataset.size(),false); 
+	vector<bool> paraCenterChangeFlag(parallelNumber,false);
+
+	vector<int> initialCenterIndex=shuffledOrder(dataset.size(),kCenter);
+
+	for(int i=0;i<centers.size();++i)
+	{
+		//centers[i]=dataset[initialCenterIndex[i]];
+		centers[i]=dataset[i];
+	}
+
+	for (int iterNumber = 0; iterNumber < maxIterationNumber; ++iterNumber)
+	{
+		
+		#pragma omp parallel for
+		for (int i = 0; i < parallelNumber; ++i)
+		{
+			for(int j=i;j<dataset.size();j+=parallelNumber)
+			{
+				int tlabel=indexOfMostSimilar(dataset[j],centers,goodCenterFlag);
+				if(tlabel!=labels[j])
+					paraCenterChangeFlag[i]=true;
+				labels[j]=tlabel;
+				++paraClusterCount[i][tlabel];
+				for (int k = 0; k < dimension; k++)
+				{
+					paraCenters[i][tlabel][k]+=dataset[j][k];
+				}
+			}
+		}
+		#pragma omp parallel for
+		for(int i=0;i<parallelNumber;++i)
+		{
+			for (int j = i; j < kCenter; j+=parallelNumber)
+			{
+				centers[j].resize(dimension,0.0);
+				clusterCount[j]=0;
+				for (int k = 0; k < paraCenters.size(); k++)
+				{
+					for (int l = 0; l < dimension; l++)
+					{
+						centers[j][l]+=paraCenters[k][j][l];
+						paraCenters[k][j][l]=0.0;
+					}
+					clusterCount[j]+=paraClusterCount[k][j];
+					paraClusterCount[k][j]=0;
+				}
+				if(clusterCount[j]==0)
+					goodCenterFlag[j]=false;
+				else
+					for (int k = 0; k < dimension; k++)
+					{
+						centers[j][k]/=clusterCount[j];
+					}
+			}
+		}
+		bool noChange=true;
+		for (int i = 0; i < parallelNumber; i++)
+		{
+			if(paraCenterChangeFlag[i]==true)
+			{
+				noChange=false;
+				paraCenterChangeFlag[i]=false;
+			}
+			
+		}
+
+		cout<<"finished iteration NO. "<<iterNumber<<endl;
+		if(noChange)
+			break;
+
+	}
+
+	vector<vector<double> > trueCenters;
+
+	unordered_map<int,int> minusNumber;
+	int numEmptyCluster=0;
+
+	for (int i = 0; i < goodCenterFlag.size(); i++)
+	{
+		if(goodCenterFlag[i])
+		{
+			trueCenters.push_back(centers[i]);
+		}
+		else
+		{
+			++numEmptyCluster;
+		}
+		if(numEmptyCluster>0)
+			minusNumber[i]=numEmptyCluster;
+	}
+	if(numEmptyCluster>0)
+	{
+		#pragma omp parallel for
+		for (int i = 0; i < parallelNumber; i++)
+		{
+			for (int j = i; j < labels.size(); j+=parallelNumber)
+			{
+				if(minusNumber.count(labels[j]))
+				{
+					labels[j]-=minusNumber[labels[j]];
+				}
+			}
+		}
+	}
+	pair<vector<vector<double> >,vector<int> > result;
+	
+	result.first=trueCenters;
 	result.second=labels;
 
 	return result;

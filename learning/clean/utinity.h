@@ -16,6 +16,7 @@ using namespace std;
 
 pair<vector<vector<double> >,vector<int> > parallelKMeans(const vector<vector<double> >& dataset,int kCenter=-1,int maxIterationNumber=1000);
 
+pair<vector<vector<double> >,vector<int> > parallelKMeans2(const vector<vector<double> >& dataset,int kCenter=-1,int maxIterationNumber=1000);
 
 template<class T>
 void FromSmall(vector<T>& p,int n,vector<int>& index)
