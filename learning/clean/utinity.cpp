@@ -126,8 +126,8 @@ pair<vector<vector<double> >,vector<int> > parallelKMeans(const vector<vector<do
 
 	for(int i=0;i<centers.size();++i)
 	{
-		//centers[i]=dataset[initialCenterIndex[i]];
-		centers[i]=dataset[i];
+		centers[i]=dataset[initialCenterIndex[i]];
+		//centers[i]=dataset[i];
 	}
 	
 	for(int iterNumber=0;iterNumber<maxIterationNumber;++iterNumber)
@@ -251,8 +251,8 @@ pair<vector<vector<double> >,vector<int> > parallelKMeans2(const vector<vector<d
 
 	for(int i=0;i<centers.size();++i)
 	{
-		//centers[i]=dataset[initialCenterIndex[i]];
-		centers[i]=dataset[i];
+		centers[i]=dataset[initialCenterIndex[i]];
+		//centers[i]=dataset[i];
 	}
 
 	for (int iterNumber = 0; iterNumber < maxIterationNumber; ++iterNumber)

@@ -145,7 +145,7 @@ vector< pair<vector<string>,vector<int> > > test(string folder,pair<vector<vecto
 
 
 
-int main()
+int main2()
 {
 	_chdir("D:\\DATA\\Fujitsu\\images\\");
 	string trainFolder="D:\\DATA\\Fujitsu\\images\\training\\";
@@ -226,6 +226,18 @@ int main1_()
     return 0;
 
 }
+int main()
+{
+	_chdir("F:\\fujitsu");
+	auto data=fileIOclass::InVectorSDouble("test.f");
+	auto kmresult1=parallelKMeans(data,20);
+	auto kmresult2=parallelKMeans2(data,20);
 
+	fileIOclass::OutVectorSDouble("rc1.txt",kmresult1.first);
+	fileIOclass::OutVectorSDouble("rc2.txt",kmresult2.first);
 
+	fileIOclass::OutVectorInt("r1.txt",kmresult1.second);
+	fileIOclass::OutVectorInt("r2.txt",kmresult2.second);
 
+	return 0;
+}
