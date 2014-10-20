@@ -4,6 +4,8 @@
 #include "settings.inl"
 using namespace FujitsuTask;
 
+#include <algorithm>
+
 vector<vector<double> > imageToFeaturesQuick(const string& s)
 {
 	return fileIOclass::InVectorSDouble(s);
@@ -185,6 +187,85 @@ public:
 			}
 		}
 	}
+	void evaluateResultByGroundtruth(const string& result,const string& groudtruth,const string& classname="",const string& categoryname="")
+	{
+		_chdir(testFolder.c_str());
+		auto lisResult=fileIOclass::InVectorString(result);
+		auto listGtruth=fileIOclass::InVectorString(groudtruth);
+		evaluateResultByGroudtruthCore(lisResult,listGtruth,result,groudtruth);
+
+		if(classname!="")
+		{
+			auto lisclass=fileIOclass::InVectorString(classname);
+			auto liscategory=fileIOclass::InVectorString(categoryname);
+			assert(classname.size()==categoryname.size());
+
+			unordered_map<string,string> dict;
+			for (int i = 0; i < classname.size(); i++)
+			{
+				dict[lisclass[i]]=liscategory[i];
+			}
+
+			vector<string> dlisresult(lisResult.size());
+			vector<string> dlisgtruth(listGtruth.size());
+			for (int i = 0; i < lisResult.size(); i++)
+			{
+				dlisresult[i]=dict[lisResult[i]];
+				dlisgtruth[i]=dict[listGtruth[i]];
+			}
+			evaluateResultByGroudtruthCore(dlisresult,dlisgtruth,result+"category",groudtruth+"category");
+		}
+		
+	}
+	void evaluateResultByGroudtruthCore(const vector<string>& lisResult,const vector<string>& listGtruth,const string& result,const string& groudtruth)
+	{
+		assert(lisResult.size()==listGtruth.size());
+		unordered_set<string> resultD;
+		unordered_set<string> gtruthD;
+		for (int i = 0; i < lisResult.size(); i++)
+		{
+			resultD.insert(lisResult[i]);
+			gtruthD.insert(listGtruth[i]);
+		}
+
+		vector<string> resultV;
+		vector<string> gtruthV;
+		for (auto it=resultD.begin();it!=resultD.end();++it )
+		{
+			resultV.push_back(*it);
+		}
+		sort(resultV.begin(),resultV.end());
+
+		for(auto it=gtruthD.begin();it!=gtruthD.end();++it)
+		{
+			gtruthV.push_back(*it);
+		}
+		sort(gtruthV.begin(),gtruthV.end());
+
+		unordered_map<string,int> resultIndex;
+		for (int i = 0; i < resultV.size(); i++)
+		{
+			resultIndex[resultV[i]]=i;
+		}
+
+		unordered_map<string,int> gtruthIndex;
+		for (int i = 0; i < gtruthV.size(); i++)
+		{
+			gtruthIndex[gtruthV[i]]=i;
+		}
+
+
+		vector<vector<int> > matrix( resultV.size(),vector<int> (gtruthV.size(),0));
+
+		for (int i = 0; i < lisResult.size(); i++)
+		{
+			++matrix[resultIndex[lisResult[i]]] [gtruthIndex[listGtruth[i]]];
+		}
+		fileIOclass::OutVectorString(result+groudtruth+"result",resultV);
+		fileIOclass::OutVectorString(result+groudtruth+"gtruth",gtruthV);
+		fileIOclass::OutVectorSInt(result+groudtruth+"_matrix",matrix);
+	}
+
 	private:
 		string testForOne(string _testImage,const pair<vector<vector<double> >,vector<int> >& kclusters)
 		{
