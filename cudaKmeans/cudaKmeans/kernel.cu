@@ -144,7 +144,7 @@ void launch(int* a,int* b,int* c,int testsize)
 	cudaDeviceSynchronize();
 }
 
-int amain()
+int main()
 {
 	int testsize=100000;
 	int* a;
@@ -163,13 +163,13 @@ int amain()
 	}
 	int* c;
 
-	c=new int[testsize];
+	//c=new int[testsize];
 	cudaMallocManaged((void**)&c,sizeof(int)*testsize);
-
+	launch(a,b,c,testsize);
 
 	for (int i = 0; i < testsize; i++)
 	{
-		if(testsize%1000==0)
+		if(testsize%10==0)
 			printf("%d ",c[i]);
 			
 	}
@@ -195,7 +195,7 @@ void hostFunction(int *value){
 	cudaFree(value);
 }
  
-int main() {
+int amain() {
 	int *value;
 	cudaMallocManaged(&value, 2 * sizeof(int));
 

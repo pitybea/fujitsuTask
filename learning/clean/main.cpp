@@ -145,7 +145,7 @@ vector< pair<vector<string>,vector<int> > > test(string folder,pair<vector<vecto
 
 
 
-int main2()
+int maindb()
 {
 	_chdir("D:\\DATA\\Fujitsu\\images\\");
 	string trainFolder="D:\\DATA\\Fujitsu\\images\\training\\";
@@ -161,7 +161,7 @@ int main2()
 		string testimages=tasks[i]+"test.txt";
 		trainTestTask oneTask(tasks[i],trainFolder,testFolder,trainimages,trainlabels,testimages);
 		oneTask.train();
-		//oneTask.doKmeans();
+		oneTask.doKmeans();
 	}
 
 
@@ -171,24 +171,27 @@ int main2()
 int main(int argc,char* argv[])
 {
 
-	assert(argc>1);
-	string task=argv[1];
+	//assert(argc>1);
+	//string task=argv[1];
 	_chdir("D:\\DATA\\Fujitsu\\images\\");
 	string trainFolder="D:\\DATA\\Fujitsu\\images\\training\\";
 	
 	string testFolder="D:\\DATA\\Fujitsu\\images\\test\\";
 	auto tasks=fileIOclass::InVectorString("task.lst");
 
-	//for(int i=0;i<tasks.size();++i)
-	//{
+	for(int i=0;i<tasks.size();++i)
+	{
+		string task=tasks[i];
 		cout<<task<<endl;
 		string trainimages=task+"name.txt";
 		string trainlabels=task+"label.txt";
 		string testimages=task+"test.txt";
 		trainTestTask oneTask(task,trainFolder,testFolder,trainimages,trainlabels,testimages);
-		oneTask.train();
+
+		oneTask.generateGroundTrueth("task38_name.txt","task38_label.txt","class.lst","classCategory.lst");
+		//oneTask.train();
 		//oneTask.doKmeans();
-	//}
+	}
 
 	return 0;
 }

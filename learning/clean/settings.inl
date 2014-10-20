@@ -1,4 +1,4 @@
 namespace FujitsuTask
 {
-	const int parallelNumber=3;
+	const int parallelNumber=50;
 }
