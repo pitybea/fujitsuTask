@@ -188,6 +188,7 @@ public:
 	private:
 		string testForOne(string _testImage,const pair<vector<vector<double> >,vector<int> >& kclusters)
 		{
+			cout<<_testImage<<endl;
 			auto tfeatures=imageToFeaturesQuick(_testImage+".jpg.sift");
 			
 			assert(features.size()>0);
