@@ -1,5 +1,8 @@
 #include "utinity.h"
+#define _NUM_OF_SIMILAR_CODES 30
 
+#include "settings.inl"
+using namespace FujitsuTask;
 
 vector<vector<double> > imageToFeaturesQuick(const string& s)
 {
@@ -149,6 +152,7 @@ public:
 
 	void testForList()
 	{
+		_chdir(trainFolder.c_str());
 		if (features.size()==0)
 		{
 			if( !fileExists(feaFileName)||
@@ -161,19 +165,147 @@ public:
 			}
 			else
 			{
+				_chdir(trainFolder.c_str());
 				features=fileIOclass::InVectorSDouble(feaFileName);
 				labels=fileIOclass::InVectorString(labelFieName);
 				pair<vector<vector<double> >,vector<int> > clusters;
 				clusters.first=fileIOclass::InVectorSDouble(centerFileName);
 				clusters.second=fileIOclass::InVectorInt(clusterLabelFileName);
 
+				_chdir(testFolder.c_str());
+				auto testList=fileIOclass::InVectorString(testImages);
 
+				vector<string> testlabel(testList.size());
+				for (int i = 0; i < testList.size(); i++)
+				{
+					testlabel[i]=testForOne(testList[i],clusters);
+				}
+
+				fileIOclass::OutVectorString(testImages+".rslt",testlabel);				
 			}
 		}
 	}
 	private:
-		string testForOne(string _testImage)
+		string testForOne(string _testImage,const pair<vector<vector<double> >,vector<int> >& kclusters)
 		{
+			auto tfeatures=imageToFeaturesQuick(_testImage+".jpg.sift");
+			
+			assert(features.size()>0);
+			assert(labels.size()>0);
+			assert(kclusters.first.size()>0);
+			assert(kclusters.second.size()>0);
+
+			vector<vector<string> > collectVotes(tfeatures.size(),vector<string>(_NUM_OF_SIMILAR_CODES,""));
+
+//			vector<vector<double> > rankBuffer(tfeatures.size(), vector<double>(kclusters.first.size(),0.0));
+			
+			vector<double> disK(tfeatures.size(),0.0);
+			vector<double> tdisK(tfeatures.size(),0.0);
+			vector<int> bestK(tfeatures.size(),-1);
+
+			#pragma omp parallel for
+			for (int i = 0; i <parallelNumber; i++)
+			{
+				for (int j = i; j < tfeatures.size(); j+=parallelNumber)
+				{
+					disK[j]=dis(tfeatures[j],kclusters.first[0]);
+					bestK[j]=0;
+					for (int k = 1; k < kclusters.first.size(); k++)
+					{
+						tdisK[j]=dis(tfeatures[j],kclusters.first[k]);
+						if(tdisK[j]<disK[j])
+						{
+							bestK[j]=k;
+							disK[j]=tdisK[j];
+						}
+
+					}
+				}
+			}
+
+			unordered_map<int,vector<int>> clusterContains;
+
+			for (int i = 0; i < kclusters.second.size(); i++)
+			{
+				clusterContains[kclusters.second[i]].push_back(i);
+			}
+
+			vector<vector<double> > rankBuffer(tfeatures.size());
+			vector<vector<int> > rankIndexBuffer(tfeatures.size());
+			//#pragma omp parallel for
+			for (int i = 0; i < rankBuffer.size(); i++)
+			{
+				rankBuffer[i].resize( clusterContains[bestK[i]].size(),0.0);
+				rankIndexBuffer[i].resize( clusterContains[bestK[i]].size(),0);
+				for (int j = 0; j < rankIndexBuffer[i].size(); j++)
+				{
+					rankIndexBuffer[i][j]=clusterContains[bestK[i]][j];
+				}
+
+			}
+
+			
+
+			#pragma omp parallel for
+			for (int i = 0; i < parallelNumber; i++)
+			{
+				for (int j = i; j < tfeatures.size(); j+=parallelNumber)
+				{
+					for (int k = 0; k < clusterContains[ bestK[j]].size(); k++)
+					{
+						rankBuffer[j][k]=dis(tfeatures[j],features[clusterContains[bestK[j]][k]]);
+					}
+					FromSmall(rankBuffer[j],rankBuffer[j].size(),rankIndexBuffer[j]);
+					for (int k = 0; k < rankBuffer[j].size() && k<_NUM_OF_SIMILAR_CODES; k++)
+					{
+						collectVotes[j][k]=labels[rankIndexBuffer[j][k]];
+					}
+				}
+			}
+
+			unordered_map<string,int> allvotes;
+			for (int i = 0; i < collectVotes.size(); i++)
+			{
+				for (int j = 0; j < collectVotes[i].size(); j++)
+				{
+					if(collectVotes[i][j]!="")
+					{
+						if(!allvotes.count(collectVotes[i][j]))
+						{
+							allvotes[collectVotes[i][j]]=1;
+						}
+						else
+							++allvotes[collectVotes[i][j]];
+					}
+				}
+			}
+
+			vector<string> labelorder(allvotes.size());
+			vector<int> numberorder(allvotes.size());
+			vector<int> subindex(allvotes.size());
+			int j=0;
+			for(unordered_map<string,int>::iterator it=allvotes.begin();it!=allvotes.end();++it)
+			{
+				labelorder[j]=it->first;
+				numberorder[j]=it->second;
+				subindex[j]=j;
+				++j;
+			}
+			vector<int> temnumberorder=numberorder;
+
+			FILE* fp=fopen((taskName+_testImage+".rslt").c_str(),"w");
+
+			FromSmall(temnumberorder,subindex.size(),subindex);
+			fprintf(fp,"%d\n",subindex.size());
+			for(int k=0;k<subindex.size();++k)
+			{
+				int _ind=subindex.size()-1-k;
+				fprintf(fp,"%s %d\n",labelorder[subindex[_ind]].c_str(),numberorder[subindex[_ind]]);
+				//orders.first[k]=labelorder[subindex[_ind]];
+				//orders.second[k]=numberorder[subindex[_ind]];
+			}
+			fclose(fp);
+			return labelorder[subindex[subindex.size()-1]];
 		}
 };
 

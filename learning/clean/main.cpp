@@ -8,7 +8,7 @@ using namespace std;
 
 
 
-#define _NUM_OF_SIMILAR_CODES 30
+//#define _NUM_OF_SIMILAR_CODES 30
 
 
 
@@ -176,7 +176,7 @@ int main(int argc,char* argv[])
 	_chdir("D:\\DATA\\Fujitsu\\images\\");
 	string trainFolder="D:\\DATA\\Fujitsu\\images\\training\\";
 	
-	string testFolder="D:\\DATA\\Fujitsu\\images\\test\\";
+	string testFolder="D:\\DATA\\Fujitsu\\images\\training\\";
 	auto tasks=fileIOclass::InVectorString("task.lst");
 
 	for(int i=0;i<tasks.size();++i)
@@ -185,10 +185,11 @@ int main(int argc,char* argv[])
 		cout<<task<<endl;
 		string trainimages=task+"name.txt";
 		string trainlabels=task+"label.txt";
-		string testimages=task+"test.txt";
+		string testimages=task+"groundTruth"+"_names.txt";
 		trainTestTask oneTask(task,trainFolder,testFolder,trainimages,trainlabels,testimages);
 
-		oneTask.generateGroundTrueth("task38_name.txt","task38_label.txt","class.lst","classCategory.lst");
+		oneTask.testForList();
+		//oneTask.generateGroundTrueth("task38_name.txt","task38_label.txt","class.lst","classCategory.lst");
 		//oneTask.train();
 		//oneTask.doKmeans();
 	}
