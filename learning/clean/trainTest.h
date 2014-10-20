@@ -198,7 +198,7 @@ public:
 		{
 			auto lisclass=fileIOclass::InVectorString(classname);
 			auto liscategory=fileIOclass::InVectorString(categoryname);
-			assert(classname.size()==categoryname.size());
+			assert(lisclass.size()==liscategory.size());
 
 			unordered_map<string,string> dict;
 			for (int i = 0; i < classname.size(); i++)
