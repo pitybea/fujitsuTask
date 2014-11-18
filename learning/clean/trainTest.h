@@ -173,15 +173,20 @@ public:
 				pair<vector<vector<double> >,vector<int> > clusters;
 				clusters.first=fileIOclass::InVectorSDouble(centerFileName);
 				clusters.second=fileIOclass::InVectorInt(clusterLabelFileName);
+				cout<<"features loaded for "<<taskName<<endl;
 
 				_chdir(testFolder.c_str());
 				auto testList=fileIOclass::InVectorString(testImages);
 
 				vector<string> testlabel(testList.size());
+				cout<<"will test "<<testList.size()<<endl;
 				for (int i = 0; i < testList.size(); i++)
 				{
+					if(i%100==0) cout<<i<<"\t";
 					testlabel[i]=testForOne(testList[i],clusters);
+//					cout<<testList[i]<<"\t";
 				}
+				cout<<endl;
 
 				fileIOclass::OutVectorString(testImages+".rslt",testlabel);				
 			}
@@ -201,7 +206,7 @@ public:
 			assert(lisclass.size()==liscategory.size());
 
 			unordered_map<string,string> dict;
-			for (int i = 0; i < classname.size(); i++)
+			for (int i = 0; i <lisclass.size(); i++)
 			{
 				dict[lisclass[i]]=liscategory[i];
 			}
@@ -228,13 +233,9 @@ public:
 			gtruthD.insert(listGtruth[i]);
 		}
 
-		vector<string> resultV;
+		//vector<string> resultV;
 		vector<string> gtruthV;
-		for (auto it=resultD.begin();it!=resultD.end();++it )
-		{
-			resultV.push_back(*it);
-		}
-		sort(resultV.begin(),resultV.end());
+		
 
 		for(auto it=gtruthD.begin();it!=gtruthD.end();++it)
 		{
@@ -242,11 +243,7 @@ public:
 		}
 		sort(gtruthV.begin(),gtruthV.end());
 
-		unordered_map<string,int> resultIndex;
-		for (int i = 0; i < resultV.size(); i++)
-		{
-			resultIndex[resultV[i]]=i;
-		}
+		
 
 		unordered_map<string,int> gtruthIndex;
 		for (int i = 0; i < gtruthV.size(); i++)
@@ -255,13 +252,13 @@ public:
 		}
 
 
-		vector<vector<int> > matrix( resultV.size(),vector<int> (gtruthV.size(),0));
+		vector<vector<int> > matrix( gtruthV.size(),vector<int> (gtruthV.size(),0));
 
 		for (int i = 0; i < lisResult.size(); i++)
 		{
-			++matrix[resultIndex[lisResult[i]]] [gtruthIndex[listGtruth[i]]];
+			++matrix[gtruthIndex[lisResult[i]]] [gtruthIndex[listGtruth[i]]];
 		}
-		fileIOclass::OutVectorString(result+groudtruth+"result",resultV);
+		//fileIOclass::OutVectorString(result+groudtruth+"result",resultV);
 		fileIOclass::OutVectorString(result+groudtruth+"gtruth",gtruthV);
 		fileIOclass::OutVectorSInt(result+groudtruth+"_matrix",matrix);
 	}
@@ -269,7 +266,7 @@ public:
 	private:
 		string testForOne(string _testImage,const pair<vector<vector<double> >,vector<int> >& kclusters)
 		{
-			cout<<_testImage<<endl;
+			//cout<<_testImage<<endl;
 			auto tfeatures=imageToFeaturesQuick(_testImage+".jpg.sift");
 			
 			assert(features.size()>0);

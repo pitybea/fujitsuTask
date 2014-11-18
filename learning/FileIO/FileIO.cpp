@@ -171,9 +171,11 @@ vector<vector<double> > fileIOclass::InVectorSDouble(string s)
 	int size,s2;
 
 	fscanf(fp,"%d %d\n",&size,&s2);
+//	printf("will load %d\n",size);
 	result.resize(size,vector<double>(s2,0));
 	for (int i=0;i<size;i++)
 	{
+	//	if(i%10000==0) printf("%d\t",i);
 		for (int j=0;j<s2;j++)
 		{
 			fscanf(fp,"%lf ",&result[i][j]);
