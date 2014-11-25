@@ -13,7 +13,7 @@ using namespace std;
 
 
 
-
+/*
 
 
 
@@ -167,7 +167,7 @@ int maindb()
 
 }
 
-
+*/
 
 int main(int argc,char* argv[])
 {
@@ -175,6 +175,17 @@ int main(int argc,char* argv[])
 	//assert(argc>1);
 	//string task=argv[1];
 	_chdir("D:\\DATA\\Fujitsu\\images\\");
+
+	unordered_map<string,string> dictionary;
+
+	vector<string> classnames=fileIOclass::InVectorString("class.lst");
+	vector<string> categorynames=fileIOclass::InVectorString("classCategory.lst");
+
+	for (int i = 0; i < classnames.size(); i++)
+	{
+		dictionary[classnames[i]]=categorynames[i];
+	}
+
 	string trainFolder="D:\\DATA\\Fujitsu\\images\\training\\";
 	
 	string testFolder="D:\\DATA\\Fujitsu\\images\\test\\";
@@ -189,8 +200,9 @@ int main(int argc,char* argv[])
 		string testimages=task+"test.txt";
 		trainTestTask oneTask(task,trainFolder,testFolder,trainimages,trainlabels,testimages);
 
+		oneTask.translateFromClassToCategory(dictionary);
 		//oneTask.evaluateResultByGroundtruth(oneTask.testImages+".rslt",task+"groundTruth"+"_labels.txt","class.lst","classCategory.lst");
-		oneTask.testForList();
+		//oneTask.testForList();
 		//oneTask.generateGroundTrueth("task38_name.txt","task38_label.txt","class.lst","classCategory.lst");
 		//oneTask.train();
 		//oneTask.doKmeans();
@@ -198,7 +210,7 @@ int main(int argc,char* argv[])
 
 	return 0;
 }
-
+/*
 int amain(int argc,char* argv[])
 {
 
@@ -276,3 +288,4 @@ int maintestKm()
 
 	return 0;
 }
+*/

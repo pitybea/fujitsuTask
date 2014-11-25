@@ -152,6 +152,26 @@ public:
 		}
 	}
 
+	void translateFromClassToCategory(unordered_map<string,string>& dictionary)
+	{
+		_chdir(testFolder.c_str());
+		auto testList=fileIOclass::InVectorString(testImages);
+
+		vector<string> testlabel(testList.size());
+		cout<<"will test "<<testList.size()<<endl;
+		for (int i = 0; i < testList.size(); i++)
+		{
+			if(i%100==0) cout<<i<<"\t";
+
+			testlabel[i]=translateForOne(testList[i],dictionary);
+//			testlabel[i]=testForOne(testList[i],c
+//					cout<<testList[i]<<"\t";
+		}
+		cout<<endl;
+
+		fileIOclass::OutVectorString(testImages+".rslt_category",testlabel);	
+	}
+
 	void testForList()
 	{
 		_chdir(trainFolder.c_str());
@@ -264,6 +284,78 @@ public:
 	}
 
 	private:
+		string translateForOne(string _testImage,unordered_map<string,string>& dictionary)
+		{
+			/*
+			FILE* fp=fopen((taskName+_testImage+".rslt").c_str(),"w");
+
+			FromSmall(temnumberorder,subindex.size(),subindex);
+			fprintf(fp,"%d\n",subindex.size());
+			for(int k=0;k<subindex.size();++k)
+			{
+				int _ind=subindex.size()-1-k;
+				fprintf(fp,"%s %d\n",labelorder[subindex[_ind]].c_str(),numberorder[subindex[_ind]]);
+				//orders.first[k]=labelorder[subindex[_ind]];
+				//orders.second[k]=numberorder[subindex[_ind]];
+			}
+			fclose(fp);
+			*/
+			FILE* fp=fopen((taskName+_testImage+".rslt").c_str(),"r");
+			
+			int n;
+			vector<string> classNames;
+			vector<int> classCount;
+			unordered_map<string,int> cateotryInfo;
+
+			fscanf(fp,"%d\n",&n);
+			classNames.resize(n);
+			classCount.resize(n);
+			for (int i = 0; i <n; i++)
+			{
+				char tem[20];
+				fscanf(fp,"%s %d\n",&tem,&classCount[i]);
+				classNames[i]=tem;
+			}
+
+			
+			fclose(fp);
+			for (int i = 0; i < n; i++)
+			{
+				if (!cateotryInfo.count(dictionary[classNames[i]]))
+				{
+					cateotryInfo[dictionary[classNames[i]]]=classCount[i];
+				}
+				else
+				{
+					cateotryInfo[dictionary[classNames[i]]]+=classCount[i];
+				}
+			}
+			vector<string> categoryNames;
+			vector<int> categoryCount;
+			vector<int> index;
+			int count=0;
+			for (auto& it:cateotryInfo)
+			{
+				categoryNames.push_back(it.first);
+				categoryCount.push_back(it.second);
+				index.push_back(count++);
+			}
+			FromSmall(categoryCount,categoryCount.size(),index);
+
+			fp=fopen((taskName+_testImage+".rslt_category").c_str(),"w");
+			fprintf(fp,"%d\n",categoryNames.size());
+
+			for (int i = 0; i < index.size(); i++)
+			{
+				int ind_=index.size()-1-i;
+				fprintf(fp,"%s %d\n",categoryNames[ind_].c_str(),categoryCount[ind_]);
+			}
+
+			fclose(fp);
+
+			return categoryNames[index[index.size()-1]];
+
+		}
 		string testForOne(string _testImage,const pair<vector<vector<double> >,vector<int> >& kclusters)
 		{
 			//cout<<_testImage<<endl;
